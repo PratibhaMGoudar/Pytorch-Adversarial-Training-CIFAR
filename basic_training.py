@@ -8,8 +8,10 @@ import torchvision
 import torchvision.transforms as transforms
 
 import os
-
 from models import *
+import copy
+
+os.chdir(os.path.dirname(__file__))
 
 learning_rate = 0.1
 epsilon = 0.0314
