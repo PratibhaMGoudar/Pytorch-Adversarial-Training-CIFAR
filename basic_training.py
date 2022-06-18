@@ -1,3 +1,4 @@
+#%%
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -23,7 +24,8 @@ alpha = 0.00784
 file_name = 'basic_training'
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-if __name__ == '__main__': # Can be removable for linux systems. - SA
+#%%
+if True or __name__ == '__main__': # Can be removable for linux systems. - SA
     transform_train = transforms.Compose([
         transforms.RandomCrop(32, padding=4),
         transforms.RandomHorizontalFlip(),
@@ -34,12 +36,14 @@ if __name__ == '__main__': # Can be removable for linux systems. - SA
         transforms.ToTensor(),
     ])
 
-    train_dataset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform_train)
-    test_dataset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform_test)
+    train_dataset = torchvision.datasets.CIFAR10(root='./data/cifar-10-batches-py', train=True, download=True, transform=transform_train)
+    test_dataset = torchvision.datasets.CIFAR10(root='./data/cifar-10-batches-py', train=False, download=True, transform=transform_test)
 
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=128, shuffle=True, num_workers=4)
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=100, shuffle=False, num_workers=4)
-
+    # for i in train_loader:
+    #     print(i)
+#%%
     class LinfPGDAttack(object):
         def __init__(self, model):
             self.model = model
@@ -104,7 +108,7 @@ if __name__ == '__main__': # Can be removable for linux systems. - SA
         print('\nTotal benign train accuarcy:', 100. * correct / total)
         print('Total benign train loss:', train_loss)
 
-    def test(epoch):
+    def test(epoch, save_model = True):
         print('\n[ Test epoch: %d ]' % epoch)
         net.eval()
         benign_loss = 0
@@ -146,13 +150,11 @@ if __name__ == '__main__': # Can be removable for linux systems. - SA
         print('Total benign test loss:', benign_loss)
         print('Total adversarial test loss:', adv_loss)
 
-        state = {
-            'net': net.state_dict()
-        }
-        if not os.path.isdir('checkpoint'):
-            os.mkdir('checkpoint')
-        torch.save(state, './checkpoint/' + file_name)
-        print('Model Saved!')
+        if save_model:
+            if not os.path.isdir('checkpoint'):
+                os.mkdir('checkpoint')
+            torch.save(net.state_dict(), './checkpoint/' + file_name)
+            print('Model Saved!')
 
     def adjust_learning_rate(optimizer, epoch):
         lr = learning_rate
@@ -163,7 +165,11 @@ if __name__ == '__main__': # Can be removable for linux systems. - SA
         for param_group in optimizer.param_groups:
             param_group['lr'] = lr
 
-    for epoch in range(0, 200):
+    for epoch in range(0, 2):
         adjust_learning_rate(optimizer, epoch)
         train(epoch)
         test(epoch)
+#%% RUNNING ONLY THROUGH TEST SET
+load_model_name = '' # Add path to model file
+net.load_state_dict(torch.load(load_model_name))
+test(epoch, save_model = False)
