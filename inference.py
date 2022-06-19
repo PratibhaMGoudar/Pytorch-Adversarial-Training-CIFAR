@@ -17,7 +17,7 @@ import numpy as np
 labels = ['plane', 'car', 'bird', 'cat', 'deer', 'dog',
     'frog', 'horse', 'ship', 'truck']
 net.eval()
-input = cv2.resize(cv2.imread(r'./download.jpg'),(32,32))/255.0
+input = cv2.cvtColor(cv2.resize(cv2.imread(r'./download.jpg'),(32,32)),cv2.COLOR_BGR2RGB)/255.0
 input = torch.tensor(np.expand_dims(np.moveaxis(input, -1, 0),axis=0),dtype=torch.float32).to(device)
 print(input.shape)
 with torch.no_grad():
